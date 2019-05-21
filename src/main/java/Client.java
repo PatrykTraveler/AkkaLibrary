@@ -27,8 +27,6 @@ public class Client {
             String command = commands[0];
             String title = commands[1];
 
-            System.out.println(cmd);
-
             switch(command){
                 case "find":
                     clientActor.tell(new FindRequest(title), null);
@@ -48,5 +46,7 @@ public class Client {
                 .takeWhile(s -> !s.equals("quit"))
                 .filter(s -> s.split("\\s+").length > 1)
                 .forEach(commandHandler);
+
+        system.stop(clientActor);
     }
 }

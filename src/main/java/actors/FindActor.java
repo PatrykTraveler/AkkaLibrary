@@ -62,7 +62,7 @@ public class FindActor extends AbstractActor {
                     10,
                     Duration.create("1 minute"),
                     DeciderBuilder
-                            .match(IOException.class, e -> SupervisorStrategy.resume())
+                            .match(IOException.class, e -> SupervisorStrategy.stop())
                             .matchAny(e -> SupervisorStrategy.escalate())
                             .build()
             );

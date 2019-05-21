@@ -9,6 +9,7 @@ import scala.concurrent.duration.Duration;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class RemoteActor extends AbstractActor {
     public static Props getProps(){
@@ -25,24 +26,23 @@ public class RemoteActor extends AbstractActor {
                 .match(FindRequest.class, this::handleFind)
                 .match(OrderRequest.class, this::handleOrder)
                 .match(StreamRequest.class, this::handleStream)
-                .match(Result.class, r -> r.replyTo.tell(r, getSelf()))
                 .matchAny(m -> System.out.println("Unknown message " + m))
                 .build();
     }
 
     public void handleFind(FindRequest findRequest){
         ActorRef find = getContext().actorOf(FindActor.getProps());
-        find.tell(findRequest, getSelf());
+        find.forward(findRequest, getContext());
     }
 
     public void handleOrder(OrderRequest orderRequest){
         ActorRef order = getContext().actorOf(OrderActor.getProps());
-        order.tell(orderRequest, getSelf());
+        order.forward(orderRequest, getContext());
     }
 
     public void handleStream(StreamRequest streamRequest){
         ActorRef stream = getContext().actorOf(StreamActor.getProps());
-        stream.tell(streamRequest, getSelf());
+        stream.forward(streamRequest, getContext());
     }
 
     private static SupervisorStrategy strategy =

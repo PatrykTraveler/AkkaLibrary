@@ -58,10 +58,18 @@ public class StreamActor extends AbstractActor {
                                 .collect(Collectors.toList()));
 
                         lines.throttle(1, Duration.ofSeconds(1))
-                                .runWith(Sink.actorRef(sender, new StreamResult(r.replyTo, "---END OF STREAM---")), mat);
+                                .watchTermination((ignore, termination) -> {
+                                    termination.whenComplete((done, throwable) -> {
+                                        getContext().stop(getSelf());
+                                        System.out.println("Stream completed");
+                                    });
+                                    return NotUsed.getInstance();
+                                })
+                                .runWith(Sink.actorRef(sender, new StreamEnd()), mat);
                     }
                     else{
                         sender.tell(new StreamFailure(r.replyTo), getSelf());
+                        getContext().stop(getSelf());
                     }
                 })
                 .build();

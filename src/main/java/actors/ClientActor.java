@@ -23,7 +23,6 @@ public class ClientActor extends AbstractActor{
 
     @Override
     public AbstractActor.Receive createReceive() {
-        System.out.println(getSelf());
         return receiveBuilder()
                 .match(FindRequest.class, r -> actorSelection.tell(new FindRequest(getSelf(), r.title), getSelf()))
                 .match(OrderRequest.class, r -> actorSelection.tell(new OrderRequest(getSelf(), r.title), getSelf()))
@@ -31,6 +30,7 @@ public class ClientActor extends AbstractActor{
                 .match(FindResult.class, this::handleFindResult)
                 .match(OrderResult.class, this::handleOrderResult)
                 .match(StreamResult.class, this::handleStreamResult)
+                .match(StreamEnd.class, r -> System.out.println("End of stream"))
                 .match(StreamFailure.class, r -> System.out.println("Failed to stream book"))
                 .matchAny(m -> System.out.println("Unknown messages " + m))
                 .build();
